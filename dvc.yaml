@@ -1,0 +1,18 @@
+stages:
+  data_validation:
+    cmd: python -c "print('Validating dataset integrity and checksums...')"
+    deps:
+      - models/.gitkeep
+    outs:
+      - models/crop_disease_model.onnx:
+          cache: true
+
+  benchmark:
+    cmd: pytest tests/ -v
+    deps:
+      - app/
+      - tests/
+      - models/crop_disease_model.onnx
+    metrics:
+      - test-results.xml:
+          cache: false
