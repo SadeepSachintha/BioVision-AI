@@ -55,6 +55,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   checkSystemHealth();
 
+  // Drift Telemetry Check
+  const driftStatusBadge = document.getElementById('drift-status-badge');
+  const driftPulseDot = document.getElementById('drift-pulse-dot');
+  const driftStatusText = document.getElementById('drift-status-text');
+
+  async function checkDriftStatus() {
+    try {
+      const res = await fetch('/drift');
+      if (res.ok) {
+        const data = await res.json();
+        if (driftStatusText) {
+          if (data.drift_detected) {
+            driftStatusText.textContent = `Drift: ${data.status.replace(/_/g, ' ')}`;
+            if (driftPulseDot) driftPulseDot.style.backgroundColor = '#ef4444';
+            if (driftStatusBadge) driftStatusBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+          } else {
+            driftStatusText.textContent = `Drift: ${data.status} (${data.sample_count} samples)`;
+            if (driftPulseDot) driftPulseDot.style.backgroundColor = 'var(--emerald-400)';
+            if (driftStatusBadge) driftStatusBadge.style.borderColor = 'var(--border-subtle)';
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  checkDriftStatus();
+
   // 2. Drag & Drop Event Handlers
   dropzone.addEventListener('click', () => fileInput.click());
 
@@ -146,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const explainData = await explainRes.json();
 
       renderResults(predictData, explainData, previewUrl);
+      checkDriftStatus();
     } catch (err) {
       alert('Inference error: ' + err.message);
     } finally {
