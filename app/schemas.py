@@ -49,3 +49,26 @@ class DiseaseClassInfo(BaseModel):
     crop: str
     condition: str
     severity: str
+
+
+class DriftMetrics(BaseModel):
+    rolling_mean_confidence: float
+    baseline_confidence: float | None = None
+    rolling_mean_entropy: float
+    baseline_entropy: float | None = None
+    rolling_green_ratio: float
+    baseline_green_ratio: float | None = None
+    rolling_luminance: float
+    baseline_luminance: float | None = None
+
+
+class DriftReportResponse(BaseModel):
+    status: str
+    sample_count: int
+    window_capacity: int
+    drift_detected: bool
+    message: str
+    metrics: DriftMetrics
+    ks_covariate_shift: float
+    ks_luminance_shift: float | None = None
+    recommendation: str

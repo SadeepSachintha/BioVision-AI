@@ -27,11 +27,13 @@ except ImportError:
     HAS_CV2 = False
 
 from app.disease_db import get_agronomic_info
+from app.drift_monitor import drift_monitor
 from app.gradcam import gradcam_engine
 from app.model_engine import CLASSES, engine
 from app.schemas import (
     AgronomicRecommendations,
     DiseaseClassInfo,
+    DriftReportResponse,
     GradCAMResponse,
     HealthResponse,
     PredictionItem,
@@ -125,6 +127,7 @@ async def root():
         "documentation": "/docs",
         "health_check": "/health",
         "classes_endpoint": "/classes",
+        "drift_monitoring": "/drift",
     }
 
 
@@ -161,6 +164,11 @@ async def predict(
     TOTAL_LATENCY_MS += latency_ms
 
     top_pred = predictions[0]
+
+    # Asynchronously record inference telemetry for drift monitoring
+    all_probs = [p["confidence"] for p in predictions]
+    drift_monitor.record_inference(image, top_pred["confidence"], all_probs)
+
     agronomic_info = get_agronomic_info(top_pred["class_name"])
 
     recommendations = AgronomicRecommendations(
@@ -243,11 +251,18 @@ async def list_classes():
     return catalog
 
 
+@app.get("/drift", response_model=DriftReportResponse, tags=["MLOps & Monitoring"])
+async def drift():
+    """Evaluates foliar covariate shift and prediction entropy drift over rolling inference window."""
+    return drift_monitor.evaluate_drift()
+
+
 @app.get("/metrics", response_class=PlainTextResponse, tags=["Telemetry"])
 async def metrics():
     """Prometheus-compatible plain text telemetry metrics."""
     avg_latency = (TOTAL_LATENCY_MS / INFERENCE_COUNT) if INFERENCE_COUNT > 0 else 0.0
     uptime = time.time() - START_TIME
+    drift_eval = drift_monitor.evaluate_drift()
 
     lines = [
         "# HELP biovision_uptime_seconds Total runtime of the FastAPI server",
@@ -262,5 +277,11 @@ async def metrics():
         "# HELP biovision_model_loaded Binary indicator if ONNX model is active",
         "# TYPE biovision_model_loaded gauge",
         f"biovision_model_loaded {1 if engine.is_loaded else 0}",
+        "# HELP biovision_drift_detected Binary indicator if covariate or concept drift detected",
+        "# TYPE biovision_drift_detected gauge",
+        f"biovision_drift_detected {1 if drift_eval['drift_detected'] else 0}",
+        "# HELP biovision_rolling_entropy Current rolling Shannon prediction entropy",
+        "# TYPE biovision_rolling_entropy gauge",
+        f"biovision_rolling_entropy {drift_eval['metrics']['rolling_mean_entropy']:.3f}",
     ]
     return "\n".join(lines) + "\n"

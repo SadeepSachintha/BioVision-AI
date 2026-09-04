@@ -9,30 +9,32 @@ echo                🌾 BIOVISION AI: CROP DISEASE INTELLIGENCE
 echo                      Edge Inference & MLOps Platform                        
 echo ===============================================================================
 echo.
-echo  [1] Start FastAPI Local Server  (http://localhost:8000/ui)
-echo  [2] Run Automated Test Suite    (Pytest - 9 tests)
-echo  [3] Export ONNX Model Weights   (scripts/export_onnx.py)
-echo  [4] Launch Docker Stack         (FastAPI + MLflow via Compose)
-echo  [5] Stop Docker Stack           (docker compose down)
-echo  [6] Open Web Demo UI in Browser (http://localhost:8000/ui)
-echo  [7] Open API Docs in Browser    (http://localhost:8000/docs)
-echo  [8] Git Quick Status            (git status)
+echo  [1] Start FastAPI Local Server       (http://localhost:8000/ui)
+echo  [2] Run Automated Test Suite         (Pytest - 11 tests)
+echo  [3] Export ONNX Model Weights        (scripts/export_onnx.py)
+echo  [4] Run INT8 Quantization Benchmark  (scripts/quantize_onnx.py)
+echo  [5] Launch Docker Stack              (FastAPI + MLflow via Compose)
+echo  [6] Stop Docker Stack                (docker compose down)
+echo  [7] Open Web Demo UI in Browser      (http://localhost:8000/ui)
+echo  [8] Open API Docs in Browser         (http://localhost:8000/docs)
+echo  [9] Git Quick Status                 (git status)
 echo  [0] Exit
 echo.
 echo ===============================================================================
-set /p choice="Enter option [0-8]: "
+set /p choice="Enter option [0-9]: "
 
 if "%choice%"=="1" goto START_SERVER
 if "%choice%"=="2" goto RUN_TESTS
 if "%choice%"=="3" goto EXPORT_ONNX
-if "%choice%"=="4" goto DOCKER_UP
-if "%choice%"=="5" goto DOCKER_DOWN
-if "%choice%"=="6" goto OPEN_UI
-if "%choice%"=="7" goto OPEN_DOCS
-if "%choice%"=="8" goto GIT_STATUS
+if "%choice%"=="4" goto QUANTIZE_INT8
+if "%choice%"=="5" goto DOCKER_UP
+if "%choice%"=="6" goto DOCKER_DOWN
+if "%choice%"=="7" goto OPEN_UI
+if "%choice%"=="8" goto OPEN_DOCS
+if "%choice%"=="9" goto GIT_STATUS
 if "%choice%"=="0" goto EXIT
 
-echo Invalid selection. Please choose 0-8.
+echo Invalid selection. Please choose 0-9.
 timeout /t 2 >nul
 goto MENU
 
@@ -70,6 +72,18 @@ echo Target: models/crop_disease_model.onnx
 echo ===============================================================================
 echo.
 python scripts/export_onnx.py --output models/crop_disease_model.onnx
+echo.
+echo Press any key to return to menu...
+pause >nul
+goto MENU
+
+:QUANTIZE_INT8
+cls
+echo ===============================================================================
+echo Executing INT8 Dynamic Quantization & Edge Benchmarking...
+echo ===============================================================================
+echo.
+python scripts/quantize_onnx.py --input models/crop_disease_model.onnx --output models/crop_disease_model_int8.onnx --benchmark
 echo.
 echo Press any key to return to menu...
 pause >nul

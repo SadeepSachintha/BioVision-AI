@@ -135,3 +135,30 @@ def test_sample_leaves_endpoint():
     response = client.get("/sample_leaves/tomato_late_blight.jpg")
     assert response.status_code == 200
     assert len(response.content) > 1000
+
+
+def test_drift_endpoint():
+    """Validates that /drift returns valid status and distribution metrics."""
+    response = client.get("/drift")
+    assert response.status_code == 200
+    data = response.json()
+    assert "status" in data
+    assert "drift_detected" in data
+    assert "metrics" in data
+    assert "sample_count" in data
+    assert "recommendation" in data
+
+
+def test_drift_telemetry_recording():
+    """Validates that predictions dynamically update drift telemetry."""
+    initial_drift = client.get("/drift").json()
+    initial_count = initial_drift["sample_count"]
+
+    # Trigger inference
+    img_bytes = create_sample_leaf_image()
+    files = {"file": ("test_leaf.jpg", img_bytes, "image/jpeg")}
+    pred_res = client.post("/predict?top_k=3", files=files)
+    assert pred_res.status_code == 200
+
+    updated_drift = client.get("/drift").json()
+    assert updated_drift["sample_count"] == initial_count + 1

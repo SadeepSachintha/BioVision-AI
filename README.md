@@ -199,8 +199,9 @@ BioVision AI exposes an interactive OpenAPI specification at `/docs`.
 | `GET` | `/health` | Liveness/readiness probe & loaded model status |
 | `POST` | `/predict` | Multi-class disease prediction & treatment advice |
 | `POST` | `/explain` | Grad-CAM heatmap visualization (Base64 JPEG) |
+| `GET` | `/drift` | Data & concept drift audit (KS covariate shift & entropy) |
 | `GET` | `/classes` | Lists all 38 recognized crop disease categories |
-| `GET` | `/metrics` | Prometheus telemetry (latency, RPS, uptime) |
+| `GET` | `/metrics` | Prometheus telemetry (latency, RPS, drift, entropy) |
 
 ---
 
@@ -292,13 +293,15 @@ BioVision-AI/
 │   ├── schemas.py                # Pydantic v2 data models
 │   ├── model_engine.py           # ONNX Runtime inference engine
 │   ├── gradcam.py                # Grad-CAM heatmap generator
+│   ├── drift_monitor.py          # KS covariate shift & entropy drift auditor
 │   └── disease_db.py             # 38-class agronomic knowledge base
 ├── sample_leaves/                # Verified test foliar images (Tomato, Corn, Potato, Apple)
 ├── models/                       # Model weights tracked via DVC
 ├── scripts/
 │   ├── export_onnx.py            # PyTorch to ONNX export utility
+│   ├── quantize_onnx.py          # INT8 Dynamic Quantization & edge benchmark
 │   └── train_mlflow.py           # MLflow training & tracking script
-├── tests/test_api.py             # Automated pytest suite (9/9 passing)
+├── tests/test_api.py             # Automated pytest suite (11/11 passing)
 ├── Dockerfile                    # Multi-stage production container
 ├── docker-compose.yml            # FastAPI + MLflow services
 ├── dvc.yaml                      # DVC pipeline definition
