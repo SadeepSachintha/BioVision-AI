@@ -3,12 +3,14 @@ Production FastAPI Application Server.
 """
 
 import io
+import os
 import time
 
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 
 try:
     from PIL import Image
@@ -58,6 +60,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Static file mounts for Web Demo UI and sample leaves
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(STATIC_DIR):
+    app.mount("/ui", StaticFiles(directory=STATIC_DIR, html=True), name="ui")
+
+SAMPLE_LEAVES_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "sample_leaves"
+)
+if os.path.exists(SAMPLE_LEAVES_DIR):
+    app.mount(
+        "/sample_leaves", StaticFiles(directory=SAMPLE_LEAVES_DIR), name="sample_leaves"
+    )
+
 
 def validate_image_file(file: UploadFile):
     """Validates MIME type, file size, and parses raw image stream."""
@@ -106,6 +121,7 @@ async def root():
         "service": "BioVision AI",
         "description": "Crop Disease Intelligence & Yield Optimizer",
         "version": "1.0.0",
+        "web_ui": "/ui",
         "documentation": "/docs",
         "health_check": "/health",
         "classes_endpoint": "/classes",

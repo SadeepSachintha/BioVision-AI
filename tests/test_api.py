@@ -121,3 +121,17 @@ def test_prometheus_metrics():
     assert response.status_code == 200
     assert "biovision_inference_total" in response.text
     assert "biovision_uptime_seconds" in response.text
+
+
+def test_ui_endpoint():
+    """Validates that the interactive Web UI is accessible."""
+    response = client.get("/ui")
+    assert response.status_code == 200
+    assert "BioVision AI" in response.text
+
+
+def test_sample_leaves_endpoint():
+    """Validates that preset sample leaves are served correctly."""
+    response = client.get("/sample_leaves/tomato_late_blight.jpg")
+    assert response.status_code == 200
+    assert len(response.content) > 1000

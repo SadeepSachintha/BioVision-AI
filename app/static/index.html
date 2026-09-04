@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BioVision AI — Crop Disease Intelligence & Yield Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+  <div class="glow-bg"></div>
+
+  <!-- Header Navigation -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">🌾</span>
+      <div class="brand-text">
+        <span class="brand-title">BioVision AI</span>
+        <span class="brand-tag">Edge Crop Intelligence</span>
+      </div>
+    </div>
+    
+    <div class="nav-status">
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        <span id="system-status-text">Connecting to ONNX Engine...</span>
+      </div>
+      <a href="/docs" target="_blank" class="nav-btn">API Docs ↗</a>
+      <a href="https://github.com/SadeepSachintha/BioVision-AI" target="_blank" class="nav-btn nav-btn-gh">GitHub ↗</a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+      <div class="badge-pill">Sub-30ms Edge Inference • Grad-CAM Explainability</div>
+      <h1 class="hero-title">Precision Foliar Disease Diagnosis & Yield Protection</h1>
+      <p class="hero-subtitle">Upload or select a leaf specimen to execute accelerated ONNX neural inference, inspect thermodynamic lesion activation heatmaps, and obtain certified IPM intervention protocols.</p>
+    </section>
+
+    <!-- Workspace Grid -->
+    <div class="workspace-grid">
+      <!-- Left Column: Ingestion & Presets -->
+      <section class="panel upload-panel">
+        <h2 class="panel-title">1. Foliar Specimen Ingest</h2>
+        
+        <!-- Drag & Drop Zone -->
+        <div id="dropzone" class="dropzone">
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+          <div class="dropzone-content">
+            <div class="drop-icon">📸</div>
+            <p class="drop-main-text">Drag & drop leaf photo here</p>
+            <p class="drop-sub-text">or <span class="browse-link">browse files</span> from your device</p>
+            <span class="format-note">Supported: JPG, PNG, WEBP (Max 10MB)</span>
+          </div>
+        </div>
+
+        <!-- Quick Test Presets -->
+        <div class="presets-section">
+          <h3 class="presets-title">Or Test With Verified Specimen Presets:</h3>
+          <div class="presets-grid">
+            <button class="preset-card" data-sample="/sample_leaves/tomato_late_blight.jpg" data-name="Tomato Late Blight">
+              <img src="/sample_leaves/tomato_late_blight.jpg" alt="Tomato Late Blight" class="preset-img">
+              <div class="preset-meta">
+                <span class="preset-label">Tomato</span>
+                <span class="preset-condition danger">Late Blight</span>
+              </div>
+            </button>
+
+            <button class="preset-card" data-sample="/sample_leaves/corn_common_rust.jpg" data-name="Corn Common Rust">
+              <img src="/sample_leaves/corn_common_rust.jpg" alt="Corn Common Rust" class="preset-img">
+              <div class="preset-meta">
+                <span class="preset-label">Corn (Maize)</span>
+                <span class="preset-condition warning">Common Rust</span>
+              </div>
+            </button>
+
+            <button class="preset-card" data-sample="/sample_leaves/potato_early_blight.jpg" data-name="Potato Early Blight">
+              <img src="/sample_leaves/potato_early_blight.jpg" alt="Potato Early Blight" class="preset-img">
+              <div class="preset-meta">
+                <span class="preset-label">Potato</span>
+                <span class="preset-condition warning">Early Blight</span>
+              </div>
+            </button>
+
+            <button class="preset-card" data-sample="/sample_leaves/apple_healthy.jpg" data-name="Apple Healthy">
+              <img src="/sample_leaves/apple_healthy.jpg" alt="Apple Healthy" class="preset-img">
+              <div class="preset-meta">
+                <span class="preset-label">Apple</span>
+                <span class="preset-condition success">Healthy Specimen</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Visualizer & Diagnostic Card -->
+      <section class="panel results-panel">
+        <h2 class="panel-title">2. AI Diagnosis & Visual Explainability</h2>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon">🔬</div>
+          <p class="empty-heading">No Specimen Analyzed Yet</p>
+          <p class="empty-text">Upload a leaf photograph or select one of the specimen presets on the left to begin real-time neural diagnosis.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-state hidden">
+          <div class="spinner"></div>
+          <p class="loading-text">Executing ONNX Tensor Graph & Grad-CAM Saliency...</p>
+        </div>
+
+        <!-- Active Results Content -->
+        <div id="results-content" class="results-content hidden">
+          <!-- Visualizer Box with Slider -->
+          <div class="visualizer-card">
+            <div class="visualizer-header">
+              <span class="card-subtitle">Grad-CAM Visual Saliency</span>
+              <span id="latency-badge" class="latency-badge">⚡ 24ms</span>
+            </div>
+
+            <div class="image-stage">
+              <img id="raw-leaf-img" class="stage-layer base-layer" alt="Raw Specimen">
+              <img id="gradcam-heatmap-img" class="stage-layer heatmap-layer" alt="Grad-CAM Heatmap">
+            </div>
+
+            <!-- Opacity Control Slider -->
+            <div class="slider-control">
+              <div class="slider-labels">
+                <span>Raw Photography</span>
+                <span id="opacity-label">Heatmap Opacity: 50%</span>
+                <span>Grad-CAM Saliency</span>
+              </div>
+              <input type="range" id="opacity-slider" min="0" max="100" value="50" class="styled-slider">
+              <div class="preset-pills">
+                <button class="pill-btn" data-val="0">Raw (0%)</button>
+                <button class="pill-btn active" data-val="50">Balanced (50%)</button>
+                <button class="pill-btn" data-val="100">Full Saliency (100%)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Diagnosis Header -->
+          <div class="diagnosis-header-card">
+            <div class="diag-primary">
+              <div class="diag-crop-name" id="diag-crop">Tomato</div>
+              <h3 class="diag-condition" id="diag-condition">Late Blight</h3>
+              <div class="diag-scientific" id="diag-scientific">Phytophthora infestans</div>
+            </div>
+            <div class="diag-meta-pills">
+              <div class="confidence-pill" id="confidence-pill">
+                <span class="conf-val" id="diag-confidence">98.4%</span>
+                <span class="conf-lbl">Confidence</span>
+              </div>
+              <div class="severity-pill" id="severity-pill">CRITICAL</div>
+            </div>
+          </div>
+
+          <!-- Yield Loss & Spread Forecaster -->
+          <div class="impact-card">
+            <div class="impact-header">
+              <span class="impact-icon">⚠️</span>
+              <span class="impact-title">Agronomic Yield Loss Risk</span>
+            </div>
+            <p id="yield-risk-text" class="impact-text">60% - 90% harvest loss without intervention within 48h</p>
+          </div>
+
+          <!-- Top-3 Probabilities -->
+          <div class="candidates-card">
+            <h4 class="card-subtitle">Candidate Probabilities (Top-K)</h4>
+            <div id="candidates-list" class="candidates-list">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+
+          <!-- Actionable IPM Recommendations -->
+          <div class="recommendations-card">
+            <h4 class="card-subtitle">Integrated Pest Management (IPM) Advisory</h4>
+            
+            <div class="rec-block immediate">
+              <div class="rec-title">🚨 Immediate Field Actions</div>
+              <ul id="rec-immediate-list" class="rec-list"></ul>
+            </div>
+
+            <div class="rec-grid">
+              <div class="rec-block">
+                <div class="rec-title">🧪 Targeted Chemical Control</div>
+                <p id="rec-chemical" class="rec-body"></p>
+              </div>
+
+              <div class="rec-block">
+                <div class="rec-title">🌿 Organic & Bio-Control</div>
+                <p id="rec-organic" class="rec-body"></p>
+              </div>
+            </div>
+
+            <div class="rec-block preventative">
+              <div class="rec-title">🛡️ Preventative Long-Term Management</div>
+              <p id="rec-preventative" class="rec-body"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>BioVision AI • Built for high-speed edge precision agronomy • Open Neural Network Exchange (ONNX)</p>
+  </footer>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>
