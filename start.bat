@@ -9,28 +9,30 @@ echo                🌾 BIOVISION AI: CROP DISEASE INTELLIGENCE
 echo                      Edge Inference & MLOps Platform                        
 echo ===============================================================================
 echo.
-echo  [1] Start FastAPI Local Server  (http://localhost:8000/docs)
-echo  [2] Run Automated Test Suite    (Pytest - 7 tests)
+echo  [1] Start FastAPI Local Server  (http://localhost:8000/ui)
+echo  [2] Run Automated Test Suite    (Pytest - 9 tests)
 echo  [3] Export ONNX Model Weights   (scripts/export_onnx.py)
 echo  [4] Launch Docker Stack         (FastAPI + MLflow via Compose)
 echo  [5] Stop Docker Stack           (docker compose down)
-echo  [6] Open API Docs in Browser    (http://localhost:8000/docs)
-echo  [7] Git Quick Status            (git status)
+echo  [6] Open Web Demo UI in Browser (http://localhost:8000/ui)
+echo  [7] Open API Docs in Browser    (http://localhost:8000/docs)
+echo  [8] Git Quick Status            (git status)
 echo  [0] Exit
 echo.
 echo ===============================================================================
-set /p choice="Enter option [0-7]: "
+set /p choice="Enter option [0-8]: "
 
 if "%choice%"=="1" goto START_SERVER
 if "%choice%"=="2" goto RUN_TESTS
 if "%choice%"=="3" goto EXPORT_ONNX
 if "%choice%"=="4" goto DOCKER_UP
 if "%choice%"=="5" goto DOCKER_DOWN
-if "%choice%"=="6" goto OPEN_DOCS
-if "%choice%"=="7" goto GIT_STATUS
+if "%choice%"=="6" goto OPEN_UI
+if "%choice%"=="7" goto OPEN_DOCS
+if "%choice%"=="8" goto GIT_STATUS
 if "%choice%"=="0" goto EXIT
 
-echo Invalid selection. Please choose 0-7.
+echo Invalid selection. Please choose 0-8.
 timeout /t 2 >nul
 goto MENU
 
@@ -38,7 +40,8 @@ goto MENU
 cls
 echo ===============================================================================
 echo Starting BioVision AI FastAPI ASGI Server...
-echo API Docs will be available at: http://localhost:8000/docs
+echo Web Demo UI will be available at: http://localhost:8000/ui
+echo API Docs will be available at:     http://localhost:8000/docs
 echo Press CTRL+C to stop the server.
 echo ===============================================================================
 echo.
@@ -81,6 +84,7 @@ echo.
 docker compose up --build -d
 echo.
 echo Stack started!
+echo - Web Demo UI:      http://localhost:8000/ui
 echo - BioVision AI API: http://localhost:8000/docs
 echo - MLflow Dashboard: http://localhost:5000
 echo.
@@ -96,6 +100,13 @@ echo.
 docker compose down
 echo.
 pause
+goto MENU
+
+:OPEN_UI
+cls
+echo Opening BioVision AI Web Demo UI in your default browser...
+start http://localhost:8000/ui
+timeout /t 2 >nul
 goto MENU
 
 :OPEN_DOCS

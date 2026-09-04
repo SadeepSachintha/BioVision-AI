@@ -162,7 +162,8 @@ pytest tests/ -v
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-Interactive API documentation: **http://localhost:8000/docs**
+- **Interactive Web Demo UI**: **http://localhost:8000/ui**
+- **Interactive API Documentation**: **http://localhost:8000/docs**
 
 ---
 
@@ -276,16 +277,21 @@ with open("leaf.jpg", "rb") as img:
 BioVision-AI/
 ├── .github/workflows/ci-cd.yml   # Automated CI/CD pipeline
 ├── app/
-│   ├── main.py                   # FastAPI application & routes
+│   ├── static/                   # Interactive Web Demo UI (HTML5, CSS3, JS)
+│   │   ├── index.html
+│   │   ├── style.css
+│   │   └── app.js
+│   ├── main.py                   # FastAPI application & static routing
 │   ├── schemas.py                # Pydantic v2 data models
 │   ├── model_engine.py           # ONNX Runtime inference engine
 │   ├── gradcam.py                # Grad-CAM heatmap generator
 │   └── disease_db.py             # 38-class agronomic knowledge base
+├── sample_leaves/                # Verified test foliar images (Tomato, Corn, Potato, Apple)
 ├── models/                       # Model weights tracked via DVC
 ├── scripts/
 │   ├── export_onnx.py            # PyTorch to ONNX export utility
 │   └── train_mlflow.py           # MLflow training & tracking script
-├── tests/test_api.py             # Automated pytest suite (7/7 passing)
+├── tests/test_api.py             # Automated pytest suite (9/9 passing)
 ├── Dockerfile                    # Multi-stage production container
 ├── docker-compose.yml            # FastAPI + MLflow services
 ├── dvc.yaml                      # DVC pipeline definition
