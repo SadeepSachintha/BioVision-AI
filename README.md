@@ -1,5 +1,6 @@
 # 🌾 BioVision AI: Crop Disease Intelligence & Yield Optimizer
 
+[![CI/CD Pipeline](https://github.com/SadeepSachintha/BioVision-AI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/SadeepSachintha/BioVision-AI/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-Inference-005CED.svg?style=flat&logo=onnx&logoColor=white)](https://onnxruntime.ai/)
@@ -10,6 +11,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
 
 > **BioVision AI** is an edge-optimized agricultural intelligence system that provides sub-30ms crop disease diagnosis, Grad-CAM visual explainability, and agronomic yield loss mitigation directly from leaf photography.
+
+<div align="center">
+  <img src="docs/assets/ui_preview.png" alt="BioVision AI Interactive Web Demo Interface" width="100%">
+  <p><em>Interactive Web Demo UI running locally at <code>http://localhost:8000/ui</code> with real-time Grad-CAM thermodynamic opacity slider and automated agronomic IPM guidance.</em></p>
+</div>
 
 ---
 
@@ -276,6 +282,7 @@ with open("leaf.jpg", "rb") as img:
 ```text
 BioVision-AI/
 ├── .github/workflows/ci-cd.yml   # Automated CI/CD pipeline
+├── docs/assets/ui_preview.png    # Interactive Web Demo preview graphic
 ├── app/
 │   ├── static/                   # Interactive Web Demo UI (HTML5, CSS3, JS)
 │   │   ├── index.html
