@@ -1,23 +1,26 @@
 """Automated Pytest Test Suite for BioVision AI API."""
 
-import io
 import base64
-import pytest
+import io
+
 import numpy as np
 
 try:
     from PIL import Image
+
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
 
 try:
     import cv2
+
     HAS_CV2 = True
 except ImportError:
     HAS_CV2 = False
 
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -29,7 +32,7 @@ def create_sample_leaf_image(color=(34, 139, 34), size=(256, 256)) -> bytes:
         # OpenCV uses BGR
         bgr_color = (color[2], color[1], color[0])
         img_arr = np.full((size[1], size[0], 3), bgr_color, dtype=np.uint8)
-        success, buffer = cv2.imencode(".jpg", img_arr)
+        _success, buffer = cv2.imencode(".jpg", img_arr)
         return buffer.tobytes()
     elif HAS_PIL:
         img = Image.new("RGB", size, color=color)
@@ -37,7 +40,9 @@ def create_sample_leaf_image(color=(34, 139, 34), size=(256, 256)) -> bytes:
         img.save(buffer, format="JPEG")
         return buffer.getvalue()
     else:
-        raise RuntimeError("Neither OpenCV nor Pillow available for test image creation.")
+        raise RuntimeError(
+            "Neither OpenCV nor Pillow available for test image creation."
+        )
 
 
 def test_root_endpoint():
@@ -72,11 +77,11 @@ def test_predict_endpoint():
     """Validates /predict inference pipeline with multipart image upload."""
     img_bytes = create_sample_leaf_image()
     files = {"file": ("test_leaf.jpg", img_bytes, "image/jpeg")}
-    
+
     response = client.post("/predict?top_k=3", files=files)
     assert response.status_code == 200
     data = response.json()
-    
+
     assert "crop" in data
     assert "disease" in data
     assert "confidence" in data
@@ -91,11 +96,11 @@ def test_explain_gradcam():
     """Validates /explain Grad-CAM heatmap generation."""
     img_bytes = create_sample_leaf_image()
     files = {"file": ("test_leaf.jpg", img_bytes, "image/jpeg")}
-    
+
     response = client.post("/explain", files=files)
     assert response.status_code == 200
     data = response.json()
-    
+
     assert "prediction" in data
     assert "heatmap_image_base64" in data
     # Verify base64 decodeable

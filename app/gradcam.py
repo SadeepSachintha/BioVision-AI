@@ -4,27 +4,30 @@ Computes visual saliency maps and blends thermodynamic heatmaps
 over leaf photography to explain classification decisions.
 """
 
-import io
 import base64
-from typing import Tuple, Any
+import io
+from typing import Any
+
 import numpy as np
 
 try:
     from PIL import Image
+
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
 
 try:
     import cv2
+
     HAS_CV2 = True
 except ImportError:
     HAS_CV2 = False
 
 
-def generate_jet_colormap(val: float) -> Tuple[int, int, int]:
+def generate_jet_colormap(val: float) -> tuple[int, int, int]:
     """Pure-Python / Numpy approximation of OpenCV COLORMAP_JET for zero-dependency portability.
-    
+
     Maps float in [0.0, 1.0] to (R, G, B) tuple.
     """
     four_val = 4.0 * val
@@ -60,10 +63,10 @@ class GradCAMEngine:
         """Generates a 2D activation map (224, 224) normalized to [0, 1]."""
         arr_f = arr.astype(np.float32)
         r, g, b = arr_f[:, :, 0], arr_f[:, :, 1], arr_f[:, :, 2]
-        
+
         # Chlorosis / Necrosis saliency gradient
         lesion_score = (r * 1.3 + b * 0.7) - (g * 0.9)
-        
+
         # Edge/pustule high-frequency features
         diff_y = np.abs(np.diff(arr_f, axis=0, prepend=arr_f[0:1, :, :]))
         diff_x = np.abs(np.diff(arr_f, axis=1, prepend=arr_f[:, 0:1, :]))
@@ -78,8 +81,8 @@ class GradCAMEngine:
         smoothed = np.zeros_like(raw_saliency)
         for i in range(kernel_size):
             for j in range(kernel_size):
-                smoothed += padded[i:i+224, j:j+224]
-        smoothed /= (kernel_size * kernel_size)
+                smoothed += padded[i : i + 224, j : j + 224]
+        smoothed /= kernel_size * kernel_size
 
         # ReLU thresholding
         saliency = np.maximum(smoothed, 0)
@@ -108,11 +111,20 @@ class GradCAMEngine:
                 for x in range(224):
                     heatmap_rgb[y, x] = generate_jet_colormap(float(saliency[y, x]))
 
-        blended = (alpha * heatmap_rgb.astype(np.float32) + (1.0 - alpha) * base_arr.astype(np.float32)).clip(0, 255).astype(np.uint8)
+        blended = (
+            (
+                alpha * heatmap_rgb.astype(np.float32)
+                + (1.0 - alpha) * base_arr.astype(np.float32)
+            )
+            .clip(0, 255)
+            .astype(np.uint8)
+        )
 
         if HAS_CV2:
             blended_bgr = cv2.cvtColor(blended, cv2.COLOR_RGB2BGR)
-            success, buffer = cv2.imencode(".jpg", blended_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            _success, buffer = cv2.imencode(
+                ".jpg", blended_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+            )
             jpeg_bytes = buffer.tobytes()
         elif HAS_PIL:
             pil_img = Image.fromarray(blended)
@@ -120,7 +132,9 @@ class GradCAMEngine:
             pil_img.save(buf, format="JPEG", quality=90)
             jpeg_bytes = buf.getvalue()
         else:
-            raise RuntimeError("Neither OpenCV nor Pillow is available for JPEG encoding.")
+            raise RuntimeError(
+                "Neither OpenCV nor Pillow is available for JPEG encoding."
+            )
 
         return base64.b64encode(jpeg_bytes).decode("utf-8")
 

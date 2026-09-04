@@ -2,37 +2,39 @@
 Production FastAPI Application Server.
 """
 
-import time
 import io
-from typing import List
-from fastapi import FastAPI, File, UploadFile, Query, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, PlainTextResponse
+import time
+
 import numpy as np
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 
 try:
     from PIL import Image
+
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
 
 try:
     import cv2
+
     HAS_CV2 = True
 except ImportError:
     HAS_CV2 = False
 
-from app.schemas import (
-    HealthResponse,
-    PredictResponse,
-    GradCAMResponse,
-    DiseaseClassInfo,
-    PredictionItem,
-    AgronomicRecommendations
-)
-from app.model_engine import engine, CLASSES
-from app.disease_db import get_agronomic_info, DISEASE_DATABASE
+from app.disease_db import get_agronomic_info
 from app.gradcam import gradcam_engine
+from app.model_engine import CLASSES, engine
+from app.schemas import (
+    AgronomicRecommendations,
+    DiseaseClassInfo,
+    GradCAMResponse,
+    HealthResponse,
+    PredictionItem,
+    PredictResponse,
+)
 
 START_TIME = time.time()
 INFERENCE_COUNT = 0
@@ -44,7 +46,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
 )
 
 # Enable CORS for mobile and web agronomy dashboards
@@ -63,15 +65,15 @@ def validate_image_file(file: UploadFile):
     if file.content_type not in allowed_types:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported file format '{file.content_type}'. Must be one of: {allowed_types}"
+            detail=f"Unsupported file format '{file.content_type}'. Must be one of: {allowed_types}",
         )
-    
+
     try:
         contents = file.file.read()
         if len(contents) > 10 * 1024 * 1024:  # 10 MB limit
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail="File size exceeds maximum permitted payload (10 MB)."
+                detail="File size exceeds maximum permitted payload (10 MB).",
             )
         if HAS_PIL:
             img = Image.open(io.BytesIO(contents))
@@ -86,14 +88,14 @@ def validate_image_file(file: UploadFile):
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="No image decoder backend (OpenCV or PIL) available on server."
+                detail="No image decoder backend (OpenCV or PIL) available on server.",
             )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Corrupt or invalid image stream: {str(e)}"
+            detail=f"Corrupt or invalid image stream: {e!s}",
         )
 
 
@@ -106,7 +108,7 @@ async def root():
         "version": "1.0.0",
         "documentation": "/docs",
         "health_check": "/health",
-        "classes_endpoint": "/classes"
+        "classes_endpoint": "/classes",
     }
 
 
@@ -120,14 +122,18 @@ async def health():
         model_loaded=engine.is_loaded,
         inference_provider=engine.provider,
         model_path=engine.model_path,
-        uptime_seconds=round(uptime, 2)
+        uptime_seconds=round(uptime, 2),
     )
 
 
 @app.post("/predict", response_model=PredictResponse, tags=["Inference"])
 async def predict(
-    file: UploadFile = File(..., description="Foliar photograph of the affected crop leaf"),
-    top_k: int = Query(3, ge=1, le=10, description="Number of candidate classes to return")
+    file: UploadFile = File(
+        ..., description="Foliar photograph of the affected crop leaf"
+    ),
+    top_k: int = Query(
+        3, ge=1, le=10, description="Number of candidate classes to return"
+    ),
 ):
     """Executes high-speed ONNX inference, returning disease classification and intervention protocols."""
     global INFERENCE_COUNT, TOTAL_LATENCY_MS
@@ -143,9 +149,15 @@ async def predict(
 
     recommendations = AgronomicRecommendations(
         immediate_actions=agronomic_info.get("immediate_actions", []),
-        chemical_control=agronomic_info.get("chemical_control", "Consult registered agronomist."),
-        organic_bio_control=agronomic_info.get("organic_bio_control", "Consult organic certification guidelines."),
-        preventative_practices=agronomic_info.get("preventative_practices", "Maintain good sanitation and rotation.")
+        chemical_control=agronomic_info.get(
+            "chemical_control", "Consult registered agronomist."
+        ),
+        organic_bio_control=agronomic_info.get(
+            "organic_bio_control", "Consult organic certification guidelines."
+        ),
+        preventative_practices=agronomic_info.get(
+            "preventative_practices", "Maintain good sanitation and rotation."
+        ),
     )
 
     items = [
@@ -153,7 +165,7 @@ async def predict(
             class_name=p["class_name"],
             crop=p["crop"],
             condition=p["condition"],
-            confidence=p["confidence"]
+            confidence=p["confidence"],
         )
         for p in predictions
     ]
@@ -167,13 +179,15 @@ async def predict(
         severity=agronomic_info.get("severity", "MODERATE"),
         yield_loss_risk_pct=agronomic_info.get("yield_loss_risk_pct", "Undetermined"),
         agronomic_recommendations=recommendations,
-        inference_latency_ms=latency_ms
+        inference_latency_ms=latency_ms,
     )
 
 
 @app.post("/explain", response_model=GradCAMResponse, tags=["Explainability"])
 async def explain(
-    file: UploadFile = File(..., description="Foliar leaf image to analyze via Grad-CAM")
+    file: UploadFile = File(
+        ..., description="Foliar leaf image to analyze via Grad-CAM"
+    )
 ):
     """Executes Grad-CAM visual explainability, producing a base64 thermodynamic attention heatmap overlay."""
     image = validate_image_file(file)
@@ -192,22 +206,24 @@ async def explain(
         confidence=top_pred["confidence"],
         inference_latency_ms=latency_ms,
         heatmap_image_base64=heatmap_b64,
-        explanation_note=note
+        explanation_note=note,
     )
 
 
-@app.get("/classes", response_model=List[DiseaseClassInfo], tags=["Catalog"])
+@app.get("/classes", response_model=list[DiseaseClassInfo], tags=["Catalog"])
 async def list_classes():
     """Enumerates all 38 agricultural crop and pathogen classes supported by the model."""
     catalog = []
     for cls_name in CLASSES:
         info = get_agronomic_info(cls_name)
-        catalog.append(DiseaseClassInfo(
-            class_name=cls_name,
-            crop=info["crop"],
-            condition=info["disease"],
-            severity=info.get("severity", "MODERATE")
-        ))
+        catalog.append(
+            DiseaseClassInfo(
+                class_name=cls_name,
+                crop=info["crop"],
+                condition=info["disease"],
+                severity=info.get("severity", "MODERATE"),
+            )
+        )
     return catalog
 
 
@@ -216,7 +232,7 @@ async def metrics():
     """Prometheus-compatible plain text telemetry metrics."""
     avg_latency = (TOTAL_LATENCY_MS / INFERENCE_COUNT) if INFERENCE_COUNT > 0 else 0.0
     uptime = time.time() - START_TIME
-    
+
     lines = [
         "# HELP biovision_uptime_seconds Total runtime of the FastAPI server",
         "# TYPE biovision_uptime_seconds gauge",
@@ -229,6 +245,6 @@ async def metrics():
         f"biovision_avg_latency_ms {avg_latency:.2f}",
         "# HELP biovision_model_loaded Binary indicator if ONNX model is active",
         "# TYPE biovision_model_loaded gauge",
-        f"biovision_model_loaded {1 if engine.is_loaded else 0}"
+        f"biovision_model_loaded {1 if engine.is_loaded else 0}",
     ]
     return "\n".join(lines) + "\n"

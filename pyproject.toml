@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",    # Line length handled by black formatter
+    "B008",    # FastAPI File(...) / Query(...) defaults
+    "BLE001",  # Broad exception catches for resilience
+    "B904",    # Exception chaining
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]

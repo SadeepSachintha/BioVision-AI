@@ -6,29 +6,33 @@ and fallback execution providers.
 
 import os
 import time
-import io
-from typing import List, Tuple, Dict, Any
+from typing import Any
+
 import numpy as np
+
 try:
     import onnxruntime as ort
+
     HAS_ORT = True
 except ImportError:
     HAS_ORT = False
 
 try:
     from PIL import Image
+
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
 
 try:
     import cv2
+
     HAS_CV2 = True
 except ImportError:
     HAS_CV2 = False
 
 # Canonical list of 38 PlantVillage agricultural classes
-CLASSES: List[str] = [
+CLASSES: list[str] = [
     "Apple___Apple_scab",
     "Apple___Black_rot",
     "Apple___Cedar_apple_rust",
@@ -66,7 +70,7 @@ CLASSES: List[str] = [
     "Tomato___Target_Spot",
     "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
     "Tomato___Tomato_mosaic_virus",
-    "Tomato___healthy"
+    "Tomato___healthy",
 ]
 
 
@@ -91,21 +95,31 @@ class ONNXModelEngine:
                 if not providers:
                     providers = ["CPUExecutionProvider"]
 
-                self.session = ort.InferenceSession(self.model_path, providers=providers)
+                self.session = ort.InferenceSession(
+                    self.model_path, providers=providers
+                )
                 self.input_name = self.session.get_inputs()[0].name
                 self.output_name = self.session.get_outputs()[0].name
                 self.provider = self.session.get_providers()[0]
                 self.is_loaded = True
-                print(f"[BioVision AI] Successfully loaded ONNX model from '{self.model_path}' using '{self.provider}'")
+                print(
+                    f"[BioVision AI] Successfully loaded ONNX model from '{self.model_path}' using '{self.provider}'"
+                )
             except Exception as e:
-                print(f"[BioVision AI] Warning: Failed to load ONNX session: {e}. Running in heuristic simulation mode.")
+                print(
+                    f"[BioVision AI] Warning: Failed to load ONNX session: {e}. Running in heuristic simulation mode."
+                )
                 self.provider = "SimulatedEngine (ORT Error Fallback)"
                 self.is_loaded = False
         else:
             if not HAS_ORT:
-                print("[BioVision AI] onnxruntime not installed in environment. Running in heuristic simulation mode.")
+                print(
+                    "[BioVision AI] onnxruntime not installed in environment. Running in heuristic simulation mode."
+                )
             else:
-                print(f"[BioVision AI] ONNX model not found at '{self.model_path}'. Running in heuristic simulation mode.")
+                print(
+                    f"[BioVision AI] ONNX model not found at '{self.model_path}'. Running in heuristic simulation mode."
+                )
             self.provider = "SimulatedEngine (Offline Fallback)"
             self.is_loaded = False
 
@@ -128,7 +142,9 @@ class ONNXModelEngine:
                 resized = image[:224, :224]
             img_data = resized.astype(np.float32) / 255.0
         else:
-            raise ValueError("Unsupported image format. Provide PIL Image or numpy ndarray.")
+            raise ValueError(
+                "Unsupported image format. Provide PIL Image or numpy ndarray."
+            )
 
         # Standard ImageNet normalization: (x - mean) / std
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
@@ -147,7 +163,7 @@ class ONNXModelEngine:
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=-1, keepdims=True)
 
-    def predict(self, image: Any, top_k: int = 3) -> Tuple[List[Dict[str, Any]], float]:
+    def predict(self, image: Any, top_k: int = 3) -> tuple[list[dict[str, Any]], float]:
         """Runs inference and returns ranked predictions with latency in milliseconds."""
         start_time = time.perf_counter()
 
@@ -165,7 +181,9 @@ class ONNXModelEngine:
             g_mean = float(np.mean(tensor[0, 1, :, :]))
             b_mean = float(np.mean(tensor[0, 2, :, :]))
 
-            np.random.seed(int(abs(r_mean * 7 + g_mean * 13 + b_mean * 19) * 1000) % 100000)
+            np.random.seed(
+                int(abs(r_mean * 7 + g_mean * 13 + b_mean * 19) * 1000) % 100000
+            )
             sim_logits = np.random.normal(0, 1.0, len(self.classes))
 
             # If heavily green, bias toward healthy; else bias toward blight
@@ -187,12 +205,14 @@ class ONNXModelEngine:
             parts = cls_name.split("___")
             crop = parts[0].replace("_", " ")
             condition = parts[1].replace("_", " ") if len(parts) > 1 else "Unknown"
-            results.append({
-                "class_name": cls_name,
-                "crop": crop,
-                "condition": condition,
-                "confidence": float(round(probabilities[idx], 4))
-            })
+            results.append(
+                {
+                    "class_name": cls_name,
+                    "crop": crop,
+                    "condition": condition,
+                    "confidence": float(round(probabilities[idx], 4)),
+                }
+            )
 
         return results, round(latency_ms, 2)
 

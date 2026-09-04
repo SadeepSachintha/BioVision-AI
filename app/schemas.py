@@ -1,4 +1,3 @@
-from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
@@ -19,7 +18,7 @@ class PredictionItem(BaseModel):
 
 
 class AgronomicRecommendations(BaseModel):
-    immediate_actions: List[str]
+    immediate_actions: list[str]
     chemical_control: str
     organic_bio_control: str
     preventative_practices: str
@@ -28,9 +27,9 @@ class AgronomicRecommendations(BaseModel):
 class PredictResponse(BaseModel):
     crop: str
     disease: str
-    scientific_name: Optional[str] = None
+    scientific_name: str | None = None
     confidence: float
-    top_k_predictions: List[PredictionItem]
+    top_k_predictions: list[PredictionItem]
     severity: str
     yield_loss_risk_pct: str
     agronomic_recommendations: AgronomicRecommendations
