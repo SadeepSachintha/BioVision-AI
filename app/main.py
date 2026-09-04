@@ -128,6 +128,8 @@ async def root():
         "health_check": "/health",
         "classes_endpoint": "/classes",
         "drift_monitoring": "/drift",
+        "offline_rural_database": "/ui/disease_db.json",
+        "offline_service_worker": "/ui/sw.js",
     }
 
 

@@ -162,3 +162,34 @@ def test_drift_telemetry_recording():
 
     updated_drift = client.get("/drift").json()
     assert updated_drift["sample_count"] == initial_count + 1
+
+
+def test_offline_disease_database():
+    """Validates that the offline rural agronomic knowledge base is served and populated."""
+    response = client.get("/ui/disease_db.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 38
+    assert "Tomato___Late_blight" in data
+    assert "immediate_actions" in data["Tomato___Late_blight"]
+
+
+def test_offline_service_worker():
+    """Validates that the PWA service worker script is accessible for client-side caching."""
+    response = client.get("/ui/sw.js")
+    assert response.status_code == 200
+    assert "biovision-offline-v1" in response.text
+
+
+def test_export_tflite_pipeline(tmp_path):
+    """Validates that the TFLite edge export pipeline produces mobile artifacts."""
+    from scripts.export_tflite import export_labels_and_metadata, export_tflite_models
+
+    out_dir = str(tmp_path / "models")
+    export_labels_and_metadata(out_dir)
+    fp32_path, int8_path = export_tflite_models(out_dir)
+
+    assert (tmp_path / "models" / "labels.txt").exists()
+    assert (tmp_path / "models" / "metadata.json").exists()
+    assert (tmp_path / "models" / "crop_disease_model.tflite").exists()
+    assert (tmp_path / "models" / "crop_disease_model_quant.tflite").exists()

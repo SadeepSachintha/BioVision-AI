@@ -40,7 +40,13 @@
   <main class="container">
     <!-- Hero Banner -->
     <section class="hero-section">
-      <div class="badge-pill">Sub-30ms Edge Inference • Grad-CAM Explainability</div>
+      <div class="hero-badges">
+        <div class="badge-pill">Sub-30ms Edge Inference • Grad-CAM Explainability</div>
+        <button id="offline-mode-toggle" class="offline-toggle-btn" type="button" title="Simulate / Force Zero-Network Rural Field Mode">
+          <span class="offline-dot"></span>
+          <span id="offline-mode-label">Mode: Online Server</span>
+        </button>
+      </div>
       <h1 class="hero-title">Precision Foliar Disease Diagnosis & Yield Protection</h1>
       <p class="hero-subtitle">Upload or select a leaf specimen to execute accelerated ONNX neural inference, inspect thermodynamic lesion activation heatmaps, and obtain certified IPM intervention protocols.</p>
     </section>
@@ -124,7 +130,10 @@
           <div class="visualizer-card">
             <div class="visualizer-header">
               <span class="card-subtitle">Grad-CAM Visual Saliency</span>
-              <span id="latency-badge" class="latency-badge">⚡ 24ms</span>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span id="offline-badge" class="offline-badge hidden">📱 OFFLINE EDGE</span>
+                <span id="latency-badge" class="latency-badge">⚡ 24ms</span>
+              </div>
             </div>
 
             <div class="image-stage">

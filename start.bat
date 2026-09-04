@@ -10,31 +10,33 @@ echo                      Edge Inference & MLOps Platform
 echo ===============================================================================
 echo.
 echo  [1] Start FastAPI Local Server       (http://localhost:8000/ui)
-echo  [2] Run Automated Test Suite         (Pytest - 11 tests)
+echo  [2] Run Automated Test Suite         (Pytest - 13 tests)
 echo  [3] Export ONNX Model Weights        (scripts/export_onnx.py)
 echo  [4] Run INT8 Quantization Benchmark  (scripts/quantize_onnx.py)
-echo  [5] Launch Docker Stack              (FastAPI + MLflow via Compose)
-echo  [6] Stop Docker Stack                (docker compose down)
-echo  [7] Open Web Demo UI in Browser      (http://localhost:8000/ui)
-echo  [8] Open API Docs in Browser         (http://localhost:8000/docs)
-echo  [9] Git Quick Status                 (git status)
+echo  [5] Export Mobile TFLite Edge Bundle (scripts/export_tflite.py)
+echo  [6] Launch Docker Stack              (FastAPI + MLflow via Compose)
+echo  [7] Stop Docker Stack                (docker compose down)
+echo  [8] Open Web Demo UI in Browser      (http://localhost:8000/ui)
+echo  [9] Open API Docs in Browser         (http://localhost:8000/docs)
+echo  [10] Git Quick Status                (git status)
 echo  [0] Exit
 echo.
 echo ===============================================================================
-set /p choice="Enter option [0-9]: "
+set /p choice="Enter option [0-10]: "
 
 if "%choice%"=="1" goto START_SERVER
 if "%choice%"=="2" goto RUN_TESTS
 if "%choice%"=="3" goto EXPORT_ONNX
 if "%choice%"=="4" goto QUANTIZE_INT8
-if "%choice%"=="5" goto DOCKER_UP
-if "%choice%"=="6" goto DOCKER_DOWN
-if "%choice%"=="7" goto OPEN_UI
-if "%choice%"=="8" goto OPEN_DOCS
-if "%choice%"=="9" goto GIT_STATUS
+if "%choice%"=="5" goto EXPORT_TFLITE
+if "%choice%"=="6" goto DOCKER_UP
+if "%choice%"=="7" goto DOCKER_DOWN
+if "%choice%"=="8" goto OPEN_UI
+if "%choice%"=="9" goto OPEN_DOCS
+if "%choice%"=="10" goto GIT_STATUS
 if "%choice%"=="0" goto EXIT
 
-echo Invalid selection. Please choose 0-9.
+echo Invalid selection. Please choose 0-10.
 timeout /t 2 >nul
 goto MENU
 
@@ -84,6 +86,19 @@ echo Executing INT8 Dynamic Quantization & Edge Benchmarking...
 echo ===============================================================================
 echo.
 python scripts/quantize_onnx.py --input models/crop_disease_model.onnx --output models/crop_disease_model_int8.onnx --benchmark
+echo.
+echo Press any key to return to menu...
+pause >nul
+goto MENU
+
+:EXPORT_TFLITE
+cls
+echo ===============================================================================
+echo Exporting Mobile TFLite (FP32 & INT8) Edge Bundle & Android Metadata...
+echo Target: models/crop_disease_model.tflite, crop_disease_model_quant.tflite
+echo ===============================================================================
+echo.
+python scripts/export_tflite.py --output-dir models/ --benchmark
 echo.
 echo Press any key to return to menu...
 pause >nul

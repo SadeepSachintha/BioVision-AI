@@ -40,6 +40,7 @@ mlflow.db
 models/*.onnx
 models/*.pt
 models/*.pth
+models/*.tflite
 !models/.gitkeep
 
 # IDE

@@ -1,0 +1,65 @@
+{
+  "model_name": "BioVision AI MobileNetV3 Foliar Disease Classifier",
+  "framework": "TensorFlow Lite / Android NPU",
+  "input_tensor": {
+    "name": "normalized_input_image_tensor",
+    "shape": [
+      1,
+      224,
+      224,
+      3
+    ],
+    "dtype": "float32",
+    "color_space": "RGB",
+    "normalization": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    }
+  },
+  "output_tensor": {
+    "name": "disease_probabilities",
+    "shape": [
+      1,
+      38
+    ],
+    "dtype": "float32",
+    "activation": "Softmax"
+  },
+  "classes_count": 38,
+  "offline_rural_capabilities": {
+    "internet_required": false,
+    "on_device_inference": true,
+    "hardware_delegates_supported": [
+      "NNAPI",
+      "GPU",
+      "XNNPACK CPU"
+    ],
+    "target_hardware": [
+      "Android 8.0+ (API 26+)",
+      "ARM64-v8a",
+      "armeabi-v7a"
+    ]
+  },
+  "severity_mapping": {
+    "Tomato___Late_blight": "CRITICAL",
+    "Tomato___Early_blight": "HIGH",
+    "Tomato___healthy": "NONE",
+    "Corn___Northern_Leaf_Blight": "HIGH",
+    "Corn___Common_rust": "MODERATE",
+    "Corn___healthy": "NONE",
+    "Apple___Apple_scab": "HIGH",
+    "Apple___healthy": "NONE",
+    "Grape___Black_rot": "CRITICAL",
+    "Potato___Late_blight": "CRITICAL",
+    "Potato___Early_blight": "MODERATE",
+    "Potato___healthy": "NONE"
+  }
+}
