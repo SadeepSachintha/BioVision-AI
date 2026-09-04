@@ -1,16 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
-title BioVision AI - System Launcher
+title BioVision AI by SS Labz - System Launcher
 
 :MENU
 cls
 echo ===============================================================================
-echo                🌾 BIOVISION AI: CROP DISEASE INTELLIGENCE                   
-echo                      Edge Inference & MLOps Platform                        
+echo            🌾 BIOVISION AI: CROP DISEASE INTELLIGENCE ^| SS LABZ                
+echo                 Edge Inference & MLOps Platform by SS Labz                     
 echo ===============================================================================
 echo.
 echo  [1] Start FastAPI Local Server       (http://localhost:8000/ui)
-echo  [2] Run Automated Test Suite         (Pytest - 13 tests)
+echo  [2] Run Automated Test Suite         (Pytest - 14 tests)
 echo  [3] Export ONNX Model Weights        (scripts/export_onnx.py)
 echo  [4] Run INT8 Quantization Benchmark  (scripts/quantize_onnx.py)
 echo  [5] Export Mobile TFLite Edge Bundle (scripts/export_tflite.py)

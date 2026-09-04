@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class HealthResponse(BaseModel):
     status: str = Field(..., examples=["healthy"])
+    organization: str = Field(default="SS Labz", examples=["SS Labz"])
     version: str = Field(..., examples=["1.0.0"])
     model_loaded: bool = Field(..., examples=[True])
     inference_provider: str = Field(..., examples=["CPUExecutionProvider"])

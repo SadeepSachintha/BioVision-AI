@@ -1,6 +1,8 @@
 # 🌾 BioVision AI: Crop Disease Intelligence & Yield Optimizer
+### ⚡ A Product of SS Labz
 
 [![CI/CD Pipeline](https://github.com/SadeepSachintha/BioVision-AI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/SadeepSachintha/BioVision-AI/actions)
+[![Product of: SS Labz](https://img.shields.io/badge/Product%20of-SS%20Labz-10b981.svg?style=flat&logo=target&logoColor=white)](https://github.com/SadeepSachintha/BioVision-AI)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-Inference-005CED.svg?style=flat&logo=onnx&logoColor=white)](https://onnxruntime.ai/)
@@ -10,7 +12,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
 
-> **BioVision AI** is an edge-optimized agricultural intelligence system that provides sub-30ms crop disease diagnosis, Grad-CAM visual explainability, and agronomic yield loss mitigation directly from leaf photography.
+> **BioVision AI** is an enterprise-grade agricultural edge intelligence system engineered by **SS Labz**. It delivers sub-30ms crop disease diagnosis, Grad-CAM visual explainability, and agronomic yield loss mitigation directly from leaf photography in both cloud and offline rural environments.
 
 <div align="center">
   <img src="docs/assets/ui_preview.png" alt="BioVision AI Interactive Web Demo Interface" width="100%">
@@ -366,5 +368,8 @@ BioVision-AI/
 
 ---
 
-## 8. License
+## 8. About SS Labz & License
+
+**BioVision AI** is designed, engineered, and maintained by **SS Labz** as an open-source agricultural intelligence product dedicated to empowering modern precision farming through edge machine learning.
+
 Distributed under the **MIT License**. See `LICENSE` for details.

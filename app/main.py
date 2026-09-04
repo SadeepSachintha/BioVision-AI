@@ -45,8 +45,8 @@ INFERENCE_COUNT = 0
 TOTAL_LATENCY_MS = 0.0
 
 app = FastAPI(
-    title="🌾 BioVision AI",
-    description="Edge-optimized Crop Disease Intelligence & Yield Optimizer with Grad-CAM Explainability",
+    title="🌾 BioVision AI | SS Labz",
+    description="BioVision AI is an edge-optimized Crop Disease Intelligence & Yield Optimizer engineered by SS Labz, featuring Grad-CAM explainability and offline rural edge support.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -121,6 +121,8 @@ async def root():
     """Service metadata and root welcome index."""
     return {
         "service": "BioVision AI",
+        "organization": "SS Labz",
+        "product_of": "SS Labz",
         "description": "Crop Disease Intelligence & Yield Optimizer",
         "version": "1.0.0",
         "web_ui": "/ui",
@@ -139,6 +141,7 @@ async def health():
     uptime = time.time() - START_TIME
     return HealthResponse(
         status="healthy",
+        organization="SS Labz",
         version="1.0.0",
         model_loaded=engine.is_loaded,
         inference_provider=engine.provider,

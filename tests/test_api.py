@@ -46,11 +46,12 @@ def create_sample_leaf_image(color=(34, 139, 34), size=(256, 256)) -> bytes:
 
 
 def test_root_endpoint():
-    """Validates root index metadata."""
+    """Validates root index metadata and SS Labz branding."""
     response = client.get("/")
     assert response.status_code == 200
     data = response.json()
     assert data["service"] == "BioVision AI"
+    assert data["organization"] == "SS Labz"
     assert "version" in data
 
 
@@ -60,6 +61,7 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
+    assert data["organization"] == "SS Labz"
     assert "uptime_seconds" in data
     assert "inference_provider" in data
 
